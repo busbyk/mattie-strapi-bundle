@@ -24,6 +24,7 @@ const validateConfig = (config) => {
             name: yup.string().required(),
             index: yup.string(),
             fields: yup.array().of(yup.string().required()),
+            filters: yup.object(),
           }),
         ),
       })

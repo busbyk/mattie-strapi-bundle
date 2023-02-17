@@ -1,6 +1,7 @@
 'use strict';
 
 const { omit, pick } = require('lodash/fp');
+const { filter } = require('../utils/filters');
 
 /**
  * Gets lifecycle service
@@ -18,7 +19,7 @@ module.exports = () => ({
     // Loop over configured contentTypes in ./config/plugins.js
     contentTypes &&
       contentTypes.forEach((contentType) => {
-        const { name, index, prefix: idPrefix = '', fields = [] } = contentType;
+        const { name, index, prefix: idPrefix = '', fields = [], filters } = contentType;
 
         if (strapi.contentTypes[name]) {
           const indexName = indexPrefix + (index ? index : name);
@@ -33,13 +34,16 @@ module.exports = () => ({
 
           strapi.db.lifecycles.subscribe({
             models: [name],
-
             async afterCreate(event) {
-              provider.create({
-                indexName,
-                data: sanitize(event.result),
-                id: idPrefix + event.result.id,
-              });
+              if (filters && filter(event.result, filters)) {
+                provider.create({
+                  indexName,
+                  data: sanitize(event.result),
+                  id: idPrefix + event.result.id,
+                });
+              } else {
+                strapi.log.info(`Skipping index creation for content type: ${name} (filter returned false)`);
+              }
             },
 
             // Todo: Fix `afterCreateMany` event result only has an count, it doesn't provide an array of result objects.
@@ -52,11 +56,15 @@ module.exports = () => ({
             // },
 
             async afterUpdate(event) {
-              provider.update({
-                indexName,
-                data: sanitize(event.result),
-                id: idPrefix + event.result.id,
-              });
+              if (filters && filter(event.result, filters)) {
+                provider.update({
+                  indexName,
+                  data: sanitize(event.result),
+                  id: idPrefix + event.result.id,
+                });
+              } else {
+                strapi.log.info(`Skipping index creation for content type: ${name} (filter returned false)`);
+              }
             },
 
             // Todo: Fix `afterUpdateMany` event result only has an count, it doesn't provide an array of result objects.
