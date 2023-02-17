@@ -3,7 +3,7 @@
 module.exports = {
   name: 'Mattie strapi bundle Tests',
   testMatch: ['<rootDir>/**/?(*.)+(spec|test).unit.js'],
-  modulePathIgnorePatterns: ['.cache'],
+  modulePathIgnorePatterns: ['.cache', '.yalc'],
   transform: {},
   testTimeout: 7000,
   setupFilesAfterEnv: ['<rootDir>/test/unit.setup.js'],

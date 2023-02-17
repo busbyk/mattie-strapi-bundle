@@ -48,6 +48,8 @@ yarn format && yarn lint
 
 ### Tests
 
+Copy the contents of `.env.example` to a new file, `.env` and replace the algolia id and api key with real values. This is required for the tests to pass.
+
 ```bash
 yarn test
 ```

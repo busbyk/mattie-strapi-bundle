@@ -82,7 +82,8 @@ $RECYCLE.BIN/
 .idea
 nbproject
 .vscode/
-
+.yalc
+yalc.lock
 
 ############################
 # Node.js
@@ -260,3 +261,6 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+yarn-*.cjs
+.yarnrc.yml
+
