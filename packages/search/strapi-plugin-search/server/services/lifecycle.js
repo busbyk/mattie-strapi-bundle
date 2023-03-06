@@ -35,12 +35,19 @@ module.exports = () => ({
           strapi.db.lifecycles.subscribe({
             models: [name],
             async afterCreate(event) {
-              if (filters && filter(event.result, filters)) {
+              const createEntry = () =>
                 provider.create({
                   indexName,
                   data: sanitize(event.result),
                   id: idPrefix + event.result.id,
                 });
+
+              if (!filters) {
+                return createEntry();
+              }
+
+              if (filter(event.result, filters)) {
+                createEntry();
               } else {
                 strapi.log.info(`Skipping index creation for content type: ${name} (filter returned false)`);
               }
@@ -56,14 +63,26 @@ module.exports = () => ({
             // },
 
             async afterUpdate(event) {
-              if (filters && filter(event.result, filters)) {
+              const updateEntry = () =>
                 provider.update({
                   indexName,
                   data: sanitize(event.result),
                   id: idPrefix + event.result.id,
                 });
+
+              if (!filters) {
+                return updateEntry();
+              }
+
+              if (filter(event.result, filters)) {
+                updateEntry();
               } else {
-                strapi.log.info(`Skipping index creation for content type: ${name} (filter returned false)`);
+                try {
+                  provider.delete({ indexName, id: idPrefix + event.result.id });
+                  strapi.log.info(`Deleting entry from index for content type: ${name} (filter returned false)`);
+                } catch (err) {
+                  strapi.log.info(`Skipping index creation for content type: ${name} (filter returned false)`);
+                }
               }
             },
 
