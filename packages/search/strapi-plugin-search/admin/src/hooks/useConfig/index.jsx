@@ -22,7 +22,6 @@ const useConfig = () => {
 
     return () => {
       abortController.abort();
-      isMounted.current = false;
     };
   }, []);
 
